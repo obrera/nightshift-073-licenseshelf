@@ -7,8 +7,12 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
+    "paths": {
+      "@obrera/mpl-core-kit-lib": ["packages/mpl-core-kit-lib/dist/index.d.mts"]
+    },
     "useDefineForClassFields": true
   }
 }
