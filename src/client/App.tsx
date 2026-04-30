@@ -438,15 +438,25 @@ export function App() {
             {wallets.map((wallet) => (
               <WalletConnectOption busy={Boolean(busyKey)} key={`connect:${wallet.name}`} wallet={wallet} />
             ))}
-            {wallets.map((wallet) => (
-              <WalletSignInOption
-                key={`signin:${wallet.name}`}
-                onError={setError}
-                onNotice={setNotice}
-                refresh={refresh}
-                wallet={wallet}
-              />
-            ))}
+            {wallets.map((wallet) => {
+              const supportsNativeSignIn = Boolean(
+                wallet.features && "solana:signIn" in wallet.features
+              );
+
+              if (!supportsNativeSignIn) {
+                return null;
+              }
+
+              return (
+                <WalletSignInOption
+                  key={`signin:${wallet.name}`}
+                  onError={setError}
+                  onNotice={setNotice}
+                  refresh={refresh}
+                  wallet={wallet}
+                />
+              );
+            })}
             {wallets.map((wallet) => (
               <WalletMessageSignInOption
                 key={`message:${wallet.name}`}
