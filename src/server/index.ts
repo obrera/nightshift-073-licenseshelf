@@ -1,8 +1,9 @@
 import { serve } from "@hono/node-server";
+// @ts-ignore vendored dist is copied into the container build context
 import {
   fetchAssetsByOwner,
   fetchMaybeCollectionV1
-} from "@obrera/mpl-core-kit-lib";
+} from "../../packages/mpl-core-kit-lib/dist/index.mjs";
 import {
   address,
   assertIsAddress,
