@@ -2,7 +2,7 @@ import { serve } from "@hono/node-server";
 import {
   fetchAssetsByOwner,
   fetchMaybeCollectionV1
-} from "@obrera/mpl-core-kit-lib";
+} from "../../packages/mpl-core-kit-lib/dist/index.mjs";
 import {
   address,
   assertIsAddress,
