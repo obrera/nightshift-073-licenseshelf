@@ -60,23 +60,20 @@ function WalletConnectOption({ busy, wallet }: { busy: boolean; wallet: UiWallet
 }
 
 function WalletSignInOption({
+  account,
   onError,
   onNotice,
   refresh,
   wallet
 }: {
+  account: UiWallet["accounts"][number];
   onError: (value: string | null) => void;
   onNotice: (value: string | null) => void;
   refresh: () => Promise<void>;
   wallet: UiWallet;
 }) {
-  const account = wallet.accounts?.[0];
   const signIn = useSignIn(wallet);
   const [isBusy, setIsBusy] = useState(false);
-
-  if (!account) {
-    return null;
-  }
 
   return (
     <button
@@ -111,23 +108,20 @@ function WalletSignInOption({
 }
 
 function WalletMessageSignInOption({
+  account,
   onError,
   onNotice,
   refresh,
   wallet
 }: {
+  account: UiWallet["accounts"][number];
   onError: (value: string | null) => void;
   onNotice: (value: string | null) => void;
   refresh: () => Promise<void>;
   wallet: UiWallet;
 }) {
-  const account = wallet.accounts?.[0];
   const [isBusy, setIsBusy] = useState(false);
   const signMessage = useSignMessage(account);
-
-  if (!account) {
-    return null;
-  }
 
   return (
     <button
@@ -439,16 +433,18 @@ export function App() {
               <WalletConnectOption busy={Boolean(busyKey)} key={`connect:${wallet.name}`} wallet={wallet} />
             ))}
             {wallets.map((wallet) => {
+              const account = wallet.accounts?.[0];
               const supportsNativeSignIn = Boolean(
                 wallet.features && "solana:signIn" in wallet.features
               );
 
-              if (!supportsNativeSignIn) {
+              if (!account || !supportsNativeSignIn) {
                 return null;
               }
 
               return (
                 <WalletSignInOption
+                  account={account}
                   key={`signin:${wallet.name}`}
                   onError={setError}
                   onNotice={setNotice}
@@ -457,15 +453,24 @@ export function App() {
                 />
               );
             })}
-            {wallets.map((wallet) => (
-              <WalletMessageSignInOption
-                key={`message:${wallet.name}`}
-                onError={setError}
-                onNotice={setNotice}
-                refresh={refresh}
-                wallet={wallet}
-              />
-            ))}
+            {wallets.map((wallet) => {
+              const account = wallet.accounts?.[0];
+
+              if (!account) {
+                return null;
+              }
+
+              return (
+                <WalletMessageSignInOption
+                  account={account}
+                  key={`message:${wallet.name}`}
+                  onError={setError}
+                  onNotice={setNotice}
+                  refresh={refresh}
+                  wallet={wallet}
+                />
+              );
+            })}
           </div>
         </section>
       ) : null}
