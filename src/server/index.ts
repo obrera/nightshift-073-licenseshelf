@@ -468,18 +468,38 @@ function getProductAndEdition(state: AppState, productId: string, editionId: str
   return { product, edition };
 }
 
+function createDiceBearGlassPngUrl(seed: string) {
+  const url = new URL(`https://api.dicebear.com/9.x/glass/png`);
+  url.searchParams.set("seed", seed);
+  url.searchParams.set("size", "512");
+  url.searchParams.set("scale", "90");
+  url.searchParams.set("backgroundType", "solid,gradientLinear");
+  return url.toString();
+}
+
+function getPublicBaseUrl() {
+  return (
+    getEnv("LICENSESHELF_PUBLIC_BASE_URL") ??
+    getEnv("STAMPQUEST_PUBLIC_BASE_URL") ??
+    `http://localhost:${port}`
+  );
+}
+
 function createLicenseMetadata(args: {
   collectionAddress: string;
   edition: EditionRecord;
   issuance: IssuanceRecord;
   product: ProductRecord;
 }) {
+  const publicBaseUrl = getPublicBaseUrl();
+  const imageUrl = createDiceBearGlassPngUrl(`licenseshelf-${args.issuance.id}-${args.edition.id}`);
+
   return {
     name: `${args.product.name} ${args.edition.name} License`,
     symbol: "LCS073",
     description: `${args.product.name} ${args.edition.name} entitlement issued by LicenseShelf build 073.`,
-    image: `/license-art/${args.edition.id}.svg`,
-    external_url: `/`,
+    image: imageUrl,
+    external_url: publicBaseUrl,
     collection: {
       name: "LicenseShelf",
       family: "Nightshift 073",
@@ -494,7 +514,7 @@ function createLicenseMetadata(args: {
     ],
     properties: {
       category: "image",
-      files: [{ uri: `/license-art/${args.edition.id}.svg`, type: "image/svg+xml" }]
+      files: [{ uri: imageUrl, type: "image/png" }]
     }
   };
 }
