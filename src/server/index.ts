@@ -5,6 +5,7 @@ import {
   fetchAssetsByOwner,
   fetchMaybeCollectionV1
 } from "../../vendor/mpl-core-kit-lib/dist/index.mjs";
+import { Resvg } from "@resvg/resvg-js";
 import {
   address,
   assertIsAddress,
@@ -468,13 +469,12 @@ function getProductAndEdition(state: AppState, productId: string, editionId: str
   return { product, edition };
 }
 
-function createDiceBearGlassPngUrl(seed: string) {
-  const url = new URL(`https://api.dicebear.com/9.x/glass/png`);
-  url.searchParams.set("seed", seed);
-  url.searchParams.set("size", "512");
-  url.searchParams.set("scale", "90");
-  url.searchParams.set("backgroundType", "solid,gradientLinear");
-  return url.toString();
+function renderSvgToPng(svg: string, width: number) {
+  const resvg = new Resvg(svg, {
+    fitTo: { mode: "width", value: width },
+    font: { loadSystemFonts: true }
+  });
+  return resvg.render().asPng();
 }
 
 function getPublicBaseUrl() {
@@ -485,6 +485,27 @@ function getPublicBaseUrl() {
   );
 }
 
+function buildLicenseArtSvg(product: ProductRecord, edition: EditionRecord) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 628" fill="none">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="${product.accent}"/>
+      <stop offset="100%" stop-color="#09111d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="628" rx="36" fill="#02040a"/>
+  <rect x="18" y="18" width="1164" height="592" rx="28" fill="url(#g)" opacity="0.95"/>
+  <rect x="54" y="54" width="1092" height="520" rx="24" fill="#04101b" fill-opacity="0.82" stroke="rgba(255,255,255,0.14)"/>
+  <text x="86" y="140" font-family="Arial, sans-serif" font-size="28" fill="${product.accent}">Nightshift 073</text>
+  <text x="86" y="226" font-family="Arial, sans-serif" font-weight="700" font-size="82" fill="#f5f7fb">${product.name}</text>
+  <text x="86" y="304" font-family="Arial, sans-serif" font-size="44" fill="#f5f7fb">${edition.name} License</text>
+  <text x="86" y="372" font-family="Arial, sans-serif" font-size="28" fill="#a9b7ca">${edition.sku}</text>
+  <text x="86" y="466" font-family="Arial, sans-serif" font-size="26" fill="#d6deeb">${edition.shortDescription}</text>
+  <text x="86" y="540" font-family="Arial, sans-serif" font-size="24" fill="#7df9c6">Wallet-bound MPL Core entitlement</text>
+</svg>`;
+}
+
 function createLicenseMetadata(args: {
   collectionAddress: string;
   edition: EditionRecord;
@@ -492,7 +513,7 @@ function createLicenseMetadata(args: {
   product: ProductRecord;
 }) {
   const publicBaseUrl = getPublicBaseUrl();
-  const imageUrl = createDiceBearGlassPngUrl(`licenseshelf-${args.issuance.id}-${args.edition.id}`);
+  const imageUrl = `${publicBaseUrl}/license-art/${args.edition.id}.png`;
 
   return {
     name: `${args.product.name} ${args.edition.name} License`,
@@ -895,27 +916,21 @@ app.get("/license-art/:editionId.svg", async (c) => {
   }
 
   const product = state.products.find((entry) => entry.id === edition.productId) as ProductRecord;
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 628" fill="none">
-  <defs>
-    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0%" stop-color="${product.accent}"/>
-      <stop offset="100%" stop-color="#09111d"/>
-    </linearGradient>
-  </defs>
-  <rect width="1200" height="628" rx="36" fill="#02040a"/>
-  <rect x="18" y="18" width="1164" height="592" rx="28" fill="url(#g)" opacity="0.95"/>
-  <rect x="54" y="54" width="1092" height="520" rx="24" fill="#04101b" fill-opacity="0.82" stroke="rgba(255,255,255,0.14)"/>
-  <text x="86" y="140" font-family="Arial, sans-serif" font-size="28" fill="${product.accent}">Nightshift 073</text>
-  <text x="86" y="226" font-family="Arial, sans-serif" font-weight="700" font-size="82" fill="#f5f7fb">${product.name}</text>
-  <text x="86" y="304" font-family="Arial, sans-serif" font-size="44" fill="#f5f7fb">${edition.name} License</text>
-  <text x="86" y="372" font-family="Arial, sans-serif" font-size="28" fill="#a9b7ca">${edition.sku}</text>
-  <text x="86" y="466" font-family="Arial, sans-serif" font-size="26" fill="#d6deeb">${edition.shortDescription}</text>
-  <text x="86" y="540" font-family="Arial, sans-serif" font-size="24" fill="#7df9c6">Wallet-bound MPL Core entitlement</text>
-</svg>`;
-
   c.header("Content-Type", "image/svg+xml; charset=utf-8");
-  return c.body(svg);
+  return c.body(buildLicenseArtSvg(product, edition));
+});
+
+app.get("/license-art/:editionId.png", async (c) => {
+  const state = await db.read();
+  const editionId = c.req.param("editionId");
+  const edition = state.editions.find((entry) => entry.id === editionId);
+  if (!edition) {
+    return new Response("Not found", { status: 404 });
+  }
+
+  const product = state.products.find((entry) => entry.id === edition.productId) as ProductRecord;
+  c.header("Content-Type", "image/png");
+  return c.body(renderSvgToPng(buildLicenseArtSvg(product, edition), 1200));
 });
 
 async function serveStaticAsset(filePath: string) {
