@@ -513,7 +513,7 @@ function createLicenseMetadata(args: {
   product: ProductRecord;
 }) {
   const publicBaseUrl = getPublicBaseUrl();
-  const imageUrl = `${publicBaseUrl}/license-art/${args.edition.id}.png`;
+  const imageUrl = `${publicBaseUrl}/api/license-art/${args.edition.id}/image.png`;
 
   return {
     name: `${args.product.name} ${args.edition.name} License`,
@@ -907,7 +907,7 @@ app.get("/api/licenses/:issuanceId/metadata.json", async (c) => {
   return c.json(createLicenseMetadata({ collectionAddress, edition, issuance, product }));
 });
 
-app.get("/license-art/:editionId.svg", async (c) => {
+app.get("/api/license-art/:editionId/image.svg", async (c) => {
   const state = await db.read();
   const editionId = c.req.param("editionId");
   const edition = state.editions.find((entry) => entry.id === editionId);
@@ -920,7 +920,7 @@ app.get("/license-art/:editionId.svg", async (c) => {
   return c.body(buildLicenseArtSvg(product, edition));
 });
 
-app.get("/license-art/:editionId.png", async (c) => {
+app.get("/api/license-art/:editionId/image.png", async (c) => {
   const state = await db.read();
   const editionId = c.req.param("editionId");
   const edition = state.editions.find((entry) => entry.id === editionId);
