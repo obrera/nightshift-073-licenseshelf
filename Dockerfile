@@ -13,6 +13,7 @@ COPY package.json package-lock.json ./
 COPY --from=build /app/packages ./packages
 RUN npm install --omit=dev --ignore-scripts
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/vendor ./vendor
 COPY --from=build /app/data ./data
 EXPOSE 3001
 CMD ["node", "dist/server/index.js"]

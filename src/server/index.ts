@@ -4,7 +4,7 @@ import { serve } from "@hono/node-server";
 import {
   fetchAssetsByOwner,
   fetchMaybeCollectionV1
-} from "../../packages/mpl-core-kit-lib/dist/index.mjs";
+} from "../../vendor/mpl-core-kit-lib/dist/index.mjs";
 import {
   address,
   assertIsAddress,
