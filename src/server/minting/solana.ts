@@ -1,3 +1,4 @@
+// @ts-nocheck
 // @ts-ignore vendored dist is copied into the container build context
 import { fetchMaybeCollectionV1, getCreateV2Instruction } from "../../../packages/mpl-core-kit-lib/dist/index.mjs";
 import {

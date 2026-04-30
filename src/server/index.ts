@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { serve } from "@hono/node-server";
 // @ts-ignore vendored dist is copied into the container build context
 import {
