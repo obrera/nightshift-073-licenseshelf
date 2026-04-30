@@ -1,7 +1,4 @@
-import {
-  fetchMaybeCollectionV1,
-  getCreateV2Instruction
-} from "../../../packages/mpl-core-kit-lib/dist/index.mjs";
+import { fetchMaybeCollectionV1, getCreateV2Instruction } from "@obrera/mpl-core-kit-lib";
 import {
   address,
   appendTransactionMessageInstructions,

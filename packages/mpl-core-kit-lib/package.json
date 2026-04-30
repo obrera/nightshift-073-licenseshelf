@@ -1,7 +1,7 @@
 {
   "name": "@obrera/mpl-core-kit-lib",
   "version": "0.0.2",
-  "description": "Temporary standalone extraction of the MPL Core @solana/kit helper library from beeman/mpl-core-kit",
+  "description": "Temporary standalone extraction of the MPL Core @solana/kit helper library from beeman/mpl-core-kit (vendored for Nightshift build 073)",
   "license": "MIT",
   "type": "module",
   "repository": {
