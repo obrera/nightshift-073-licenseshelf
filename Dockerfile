@@ -10,7 +10,7 @@ FROM node:24-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 COPY package.json package-lock.json ./
-COPY packages ./packages
+COPY --from=build /app/packages ./packages
 RUN npm install --omit=dev --ignore-scripts
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/data ./data
