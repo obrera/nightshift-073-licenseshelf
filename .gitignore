@@ -1,0 +1,7 @@
+# nightshift-073-licenseshelf
+.codex
+node_modules/
+dist/
+.DS_Store
+data/licenseshelf-local.json
+npm-debug.log*
