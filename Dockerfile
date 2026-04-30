@@ -4,6 +4,7 @@ COPY package.json package-lock.json ./
 COPY packages ./packages
 RUN npm install --ignore-scripts
 COPY . .
+RUN mkdir -p vendor/mpl-core-kit-lib && cp -R packages/mpl-core-kit-lib/dist vendor/mpl-core-kit-lib/
 RUN npm run build
 
 FROM node:24-bookworm-slim AS runtime
